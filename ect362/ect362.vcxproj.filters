@@ -30,6 +30,9 @@
     <ClInclude Include="data.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="calculate_process.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ect362.cpp">
@@ -42,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="display.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="calculate_process.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

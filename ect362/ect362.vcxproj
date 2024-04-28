@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="calculate_process.h" />
     <ClInclude Include="ect362.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="data.h" />
@@ -134,6 +135,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="calculate_process.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="display.h" />
     <ClCompile Include="ect362.cpp" />

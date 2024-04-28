@@ -1,8 +1,4 @@
-﻿//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ 生成的包含文件。
-// 使用者 ect362.rc
-
-#define IDS_APP_TITLE			103
+﻿#define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
 #define IDD_ECT362_DIALOG		102
@@ -28,3 +24,4 @@
 #define _APS_NEXT_SYMED_VALUE		110
 #endif
 #endif
+

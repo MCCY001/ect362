@@ -1,27 +1,22 @@
-﻿/* Preprocessor Directives */
-#undef UNICODE
-#include <windows.h>  // Win32 API
-
-#include "data.h"
-#include "display.h"
-#include "resource.h"  // resources for your application
-
+﻿#undef UNICODE
+#include <windows.h>
 #include <iostream>	
-#pragma warning(disable: 4996)	//ignore sprintf() error
 
-#define ID_AREABUTTON	1010	//id of area button
-#define ID_EDITLEN		1020	//length edit box
-#define ID_EDITHEI		1030	//Height edit box
+#include "ect362.h"
+
+#pragma warning(disable: 4996)
+
 #define FLUID_DATA_DIR "C:\\Users\\ycc\\Desktop\\Fulid_type.csv"
 #define PIPE_DATA_DIR "C:\\Users\\ycc\\Desktop\\Pipe_Size.csv"
 
-/* Function Prototypes */
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);  //the window procedure
-/* A callback function is passed (by reference) to another function */
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); 
 
-/* Global variables */
-const std::vector<FluidType> fluid_type_list = ReadFluidData(FLUID_DATA_DIR);
-const std::vector<PipeSize> pipe_size_list = ReadPipeData(PIPE_DATA_DIR);
+/* global variables */
+static std::vector<FluidType> fluid_type_list = ReadFluidData(FLUID_DATA_DIR);
+static std::vector<PipeSize> pipe_size_list = ReadPipeData(PIPE_DATA_DIR);
+static FluidType selected_fluid;
+static PipeSelectionResult result;
+bool result_valid = false;
 
 /* Functions */
 /*****************************************************************
@@ -54,18 +49,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	wndclass.lpszClassName = szAppName;
 	wndclass.lpszMenuName = NULL;
 
-
-	/*  Register a new window class with Windows  */
 	RegisterClassEx(&wndclass);
 
-	/*  Create a window based on our new class  */
 	hwnd = CreateWindow(szAppName,
 		"PipeSeller",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		800, // initial width
-		600, // initial height
+		800, 
+		600, 
 		NULL,
 		NULL,
 		hInstance,
@@ -78,14 +70,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 0;
 	}
 
-	/* Show and update our window  */
 	ShowWindow(hwnd, iCmdShow);
 	UpdateWindow(hwnd);
 
-
-	/*  Retrieve and process any queued messages until we get WM_QUIT  */
-	/* Recall that Windows uses a messaging system to notify window of */
-	/*  user actions												   */
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
 		TranslateMessage(&msg);
@@ -115,6 +102,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		const HDC& hdc = BeginPaint(hwnd, &ps);
+
 		HFONT hFont = CreateFont(
 			16, 0, 0, 0,
 			FW_NORMAL,
@@ -124,19 +112,25 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 		SelectObject(hdc, hFont);
 
 		const char* tips = "Fluid name:";
+		const char* tips2 = "input maximum tanker truck volume in ft3 here:";
+		const char* tips3 = "input maximum tanker fill time ft/s here:";
+		const char* tips4 = "input customer id here:";
 		TextOut(hdc, 0, 0, tips, strlen(tips));
-		DrawPipeData(hdc, pipe_size_list);
+		TextOut(hdc, 250, 0, tips2, strlen(tips2));
+		TextOut(hdc, 250, 75, tips3, strlen(tips3));
+		TextOut(hdc, 250, 150, tips4, strlen(tips4));
+		//DrawPipeData(hdc, pipe_size_list);
 		//DrawFluidData(hdc, fluid_type_list);
+
+		if (result_valid) {
+			DisplaySelectedData(hdc, result);
+			result_valid = false;  // 重置结果标记
+		}
 
 		DeleteObject(hFont);
 		EndPaint(hwnd, &ps);
 		break;
 	}
-
-#define ID_CONFIRM_BUTTON 1001
-
-
-		// 在窗口过程的 WM_CREATE 消息处理器中
 	case WM_CREATE:
 	{
 		for (int i = 0; i < fluid_type_list.size(); i++) {
@@ -146,32 +140,76 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 				WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 				0, 20 + i * 20, 230, 15,
 				hwnd,
-				(HMENU)(i),
+				(HMENU)(FLUID_TYPE_PREFIX + i),
 				(HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
 				NULL);
 		}
-			HWND hwndButton = CreateWindow(
-				"BUTTON",   // 预定义的按钮类名
-				"Confirm", // 按钮文本
-				WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, // 样式
-				10, 20 + fluid_type_list.size() * 20, 100, 30,    // 位置和大小
-				hwnd,         // 父窗口句柄
-				(HMENU)ID_CONFIRM_BUTTON, // 菜单句柄或子窗口ID
-				(HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-				NULL);        // 创建参数
+
+		HWND max_tanker_truck_volume = CreateWindow(
+			"EDIT",
+			"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			250, 30, 300, 20,
+			hwnd,
+			(HMENU)MAXIMUM_TANKER_TRUCK_VOLUME_EDIT,
+			(HINSTANCE)0,
+			NULL);
+
+		HWND max_tanker_fill_time = CreateWindow(
+			"EDIT",
+			"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			250, 100, 300, 20,
+			hwnd,
+			(HMENU)MAXIMUM_TANKER_FILL_TIME_EDIT,
+			(HINSTANCE)0,
+			NULL);
+
+		HWND customer_id = CreateWindow(
+			"EDIT",
+			"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			250, 170, 300, 20,
+			hwnd,
+			(HMENU)CUSTOMER_ID_EDIT,
+			(HINSTANCE)0,
+			NULL);
+
+		HWND hwndButton = CreateWindow(
+			"BUTTON",
+			"Confirm",
+			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+			10, 20 + fluid_type_list.size() * 20, 100, 30,
+			hwnd,
+			(HMENU)ID_CONFIRM_BUTTON,
+			(HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+			NULL);
 		break;
 	}
-
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
-		if (wmId == ID_CONFIRM_BUTTON) {
+		int wmEvent = HIWORD(wParam);
+		char buffer[256] = {'\0'};
+		switch (wmId) {
+		case ID_CONFIRM_BUTTON:
 			for (int i = 0; i < fluid_type_list.size(); i++) {
-				if (IsDlgButtonChecked(hwnd, i)) {
+				if (IsDlgButtonChecked(hwnd, FLUID_TYPE_PREFIX + i)) {
+					selected_fluid = fluid_type_list[i];
 					MessageBox(hwnd, ("你选择了 " + fluid_type_list[i].name).c_str(), "提示", MB_OK);
 					break;
 				}
 			}
+			GetWindowText(GetDlgItem(hwnd, MAXIMUM_TANKER_TRUCK_VOLUME_EDIT), buffer, 256);
+			double max_tank_volume = atof(buffer);
+			GetWindowText(GetDlgItem(hwnd, MAXIMUM_TANKER_FILL_TIME_EDIT), buffer, 256);
+			double max_fill_time = atof(buffer);
+			GetWindowText(GetDlgItem(hwnd, CUSTOMER_ID_EDIT), buffer, 256);
+			unsigned int customer_id = atoi(buffer);
+			result = Calculate(pipe_size_list, selected_fluid, max_tank_volume, max_fill_time);
+			CustomerOrder current_order{ customer_id, max_tank_volume, max_fill_time, result.actual_pipe };
+			result_valid = true;
+			InvalidateRect(hwnd, NULL, TRUE);
 		}
 		break;
 	}
