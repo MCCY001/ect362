@@ -1,6 +1,7 @@
 ﻿#undef UNICODE
 #include <windows.h>
 #include <iostream>	
+#include <thread>
 
 #include "ect362.h"
 
@@ -11,6 +12,20 @@
 #define CUSTOMER_INFO_DIR "C:\\Users\\ycc\\Desktop\\customer.txt"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); 
+// concurrent mutual exclusion
+void ConcurrentCalculateAndWrite(const std::vector<PipeSize>& pipe_size_list,
+	const FluidType& selected_fluid,
+	double max_tank_volume,
+	double max_fill_time,
+	unsigned int customer_id,
+	const std::string& file_path) {
+	std::thread calcThread([&]() {
+		auto result = Calculate(pipe_size_list, selected_fluid, max_tank_volume, max_fill_time);
+		CustomerOrder current_order{ customer_id, max_tank_volume, max_fill_time, result.actual_pipe };
+		WriteCustomerToFile(current_order, file_path);
+		});
+	calcThread.detach();
+}
 
 /* global variables */
 static std::vector<FluidType> fluid_type_list = ReadFluidData(FLUID_DATA_DIR);
@@ -125,7 +140,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 
 		if (result_valid) {
 			DisplaySelectedData(hdc, result);
-			result_valid = false;  // 重置结果标记
+			result_valid = false;
 		}
 
 		DeleteObject(hFont);
@@ -197,7 +212,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 			for (int i = 0; i < fluid_type_list.size(); i++) {
 				if (IsDlgButtonChecked(hwnd, FLUID_TYPE_PREFIX + i)) {
 					selected_fluid = fluid_type_list[i];
-					MessageBox(hwnd, ("你选择了 " + fluid_type_list[i].name).c_str(), "提示", MB_OK);
+					MessageBox(hwnd, ("you chose " + fluid_type_list[i].name).c_str(), "tips", MB_OK);
 					break;
 				}
 			}
