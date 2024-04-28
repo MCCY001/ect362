@@ -8,6 +8,7 @@
 
 #define FLUID_DATA_DIR "C:\\Users\\ycc\\Desktop\\Fulid_type.csv"
 #define PIPE_DATA_DIR "C:\\Users\\ycc\\Desktop\\Pipe_Size.csv"
+#define CUSTOMER_INFO_DIR "C:\\Users\\ycc\\Desktop\\customer.txt"
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); 
 
@@ -208,6 +209,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 			unsigned int customer_id = atoi(buffer);
 			result = Calculate(pipe_size_list, selected_fluid, max_tank_volume, max_fill_time);
 			CustomerOrder current_order{ customer_id, max_tank_volume, max_fill_time, result.actual_pipe };
+			WriteCustomerToFile(current_order, CUSTOMER_INFO_DIR);
 			result_valid = true;
 			InvalidateRect(hwnd, NULL, TRUE);
 		}

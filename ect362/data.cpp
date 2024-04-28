@@ -99,3 +99,25 @@ const std::vector<PipeSize> ReadPipeData(const std::string& file_path) {
     file.close();
     return pipes;
 }
+
+void WriteCustomerToFile(const CustomerOrder& customer, const std::string& file_path) {
+    // 打开文件，std::ios::app 保证以追加模式打开文件
+    std::ofstream file(file_path, std::ios::app);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return;
+    }
+
+    // 将客户订单信息写入文件
+    file << "Customer ID: " << customer.customer_id << "\n"
+        << "Max Tank Volume: " << customer.max_tank_volume << " cubic feet\n"
+        << "Max Fill Time: " << customer.max_fill_time << " seconds\n"
+        << "Selected Pipe Diameter: " << customer.selected_pipe.nominal_pipe_size_in << " inches\n";
+
+    // 添加一个空行作为间隔，为下一次写入准备
+    file << "\n";
+
+    // 关闭文件
+    file.close();
+}

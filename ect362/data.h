@@ -35,7 +35,7 @@ struct CustomerOrder {
 
 const std::vector<FluidType> ReadFluidData(const std::string& file_path);
 const std::vector<PipeSize> ReadPipeData(const std::string& file_path);
-
+void WriteCustomerToFile(const CustomerOrder& customer, const std::string& file_path);
 
 #define ID_CONFIRM_BUTTON 1000
 
