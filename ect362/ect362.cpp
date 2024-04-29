@@ -18,7 +18,7 @@ void ConcurrentCalculateAndWrite(const std::vector<PipeSize>& pipe_size_list,
 	double max_tank_volume,
 	double max_fill_time,
 	unsigned int customer_id,
-	const std::string& file_path) {
+	const char* file_path) {
 	std::thread calcThread([&]() {
 		auto result = Calculate(pipe_size_list, selected_fluid, max_tank_volume, max_fill_time);
 		CustomerOrder current_order{ customer_id, max_tank_volume, max_fill_time, result.actual_pipe };
@@ -152,7 +152,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 		for (int i = 0; i < fluid_type_list.size(); i++) {
 			HWND hwndRadioButton = CreateWindow(
 				"BUTTON",
-				fluid_type_list[i].name.c_str(),
+				fluid_type_list[i].name ,
 				WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 				0, 20 + i * 20, 230, 15,
 				hwnd,
@@ -212,7 +212,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,
 			for (int i = 0; i < fluid_type_list.size(); i++) {
 				if (IsDlgButtonChecked(hwnd, FLUID_TYPE_PREFIX + i)) {
 					selected_fluid = fluid_type_list[i];
-					MessageBox(hwnd, ("you chose " + fluid_type_list[i].name).c_str(), "tips", MB_OK);
+					MessageBox(hwnd, fluid_type_list[i].name, "tips", MB_OK);
 					break;
 				}
 			}

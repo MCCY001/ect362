@@ -1,9 +1,8 @@
 #pragma once
-#include <string>
 #include <vector>
 
 struct FluidType {
-	std::string name = "";
+	char* name = NULL;
 	double specific_gravity = 0;
 	double specific_weight = 0;
 	double density = 0;
@@ -33,9 +32,9 @@ struct CustomerOrder {
 	PipeSize selected_pipe;
 };
 
-const std::vector<FluidType> ReadFluidData(const std::string& file_path);
-const std::vector<PipeSize> ReadPipeData(const std::string& file_path);
-void WriteCustomerToFile(const CustomerOrder& customer, const std::string& file_path);
+const std::vector<FluidType> ReadFluidData(const char* file_path);
+const std::vector<PipeSize> ReadPipeData(const char* file_path);
+void WriteCustomerToFile(const CustomerOrder& customer, const char* file_path);
 
 #define ID_CONFIRM_BUTTON 1000
 

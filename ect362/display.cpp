@@ -6,14 +6,14 @@ void DrawFluidData(HDC hdc, const std::vector<FluidType>& fluid_type_list) {
 	int y = 0;
 	int yStep = 20;
 
-	std::string header = "Fluid Name:";
-	TextOut(hdc, x, y, header.c_str(), header.length());
+	const char* header = "Fluid Name:";
+	TextOut(hdc, x, y, header, strlen(header));
 	y += yStep;
 
 	for (const auto& fluid : fluid_type_list) {
 		char text[512];
 		sprintf_s(text, sizeof(text), "%-15s",
-			fluid.name.c_str());
+			fluid.name);
 
 		TextOut(hdc, x, y, text, strlen(text));
 		y += yStep;
@@ -24,11 +24,11 @@ void DrawPipeData(HDC hdc, const std::vector<PipeSize>& pipe_size_list) {
 	int x = 300;
 	int y = 0;
 	int yStep = 20;
-	std::string header = "Pipe data:";
-	TextOut(hdc, x, y, header.c_str(), header.length());
+	const char* header = "Pipe data:";
+	TextOut(hdc, x, y, header, strlen(header));
 	y += yStep;
 	header = "ID    Nominal Pipe Size (in)    Nominal Pipe Size (mm)    Outside Diameter (in)    Outside Diameter (mm)    Wall Thickness (in)    Wall Thickness (mm)    Inside Diameter (in)    Inside Diameter (ft)    Flow Area (mm)    Flow Area (mm2)    Flow Area (m2)";
-	TextOut(hdc, x, y, header.c_str(), header.length());
+	TextOut(hdc, x, y, header, strlen(header));
 	y += yStep;
 
 	for (const auto& pipeSize : pipe_size_list) {
@@ -55,11 +55,11 @@ void DisplaySelectedData(HDC hdc, PipeSelectionResult result) {
 	int x = 250;
 	int y = 250;
 	int yStep = 20;
-	std::string header = "Pipe data:";
-	TextOut(hdc, x, y, header.c_str(), header.length());
+	const char* header = "Pipe data:";
+	TextOut(hdc, x, y, header, strlen(header));
 	y += yStep;
 	header = "ID    Nominal Pipe Size (in)    Nominal Pipe Size (mm)    Outside Diameter (in)    Outside Diameter (mm)    Wall Thickness (in)    Wall Thickness (mm)    Inside Diameter (in)    Inside Diameter (ft)    Flow Area (mm)    Flow Area (mm2)    Flow Area (m2)";
-	TextOut(hdc, x, y, header.c_str(), header.length());
+	TextOut(hdc, x, y, header, strlen(header));
 	y += yStep;
 	char text[512];
 	sprintf_s(text, sizeof(text), "%-5u %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f %-15.2f",
@@ -77,5 +77,5 @@ void DisplaySelectedData(HDC hdc, PipeSelectionResult result) {
 		result.actual_pipe.flow_area_m2);
 	TextOut(hdc, x, y, text, strlen(text));
 	y += yStep;
-	TextOut(hdc, x, y, result.re.c_str(), result.re.size());
+	TextOut(hdc, x, y, result.re, strlen(result.re));
 }
